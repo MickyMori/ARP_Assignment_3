@@ -293,7 +293,7 @@ int main(int argc, char *argv[])
             if (n < 0) error("ERROR reading from socket");
 
             //convert the bytes into an integer
-            cmd_received = atoi(cmd_received); 
+            cmd_received = atoi(buffer); 
 
             if(cmd_received == KEY_RESIZE) {
                 if(first_resize) {
