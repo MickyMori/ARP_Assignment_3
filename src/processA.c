@@ -287,7 +287,10 @@ int main(int argc, char *argv[])
 
             //receive an integer value as a string corresponding to the key that has been pressed
             n = read(newsockfd,buffer,255);
-            if (n < 0) error("ERROR reading from socket");
+                if (n < 0) error("ERROR reading from socket");
+
+            mvprintw(LINES - 1, 1, "%s", buffer);
+            refresh();
 
             //convert the bytes into an integer
             cmd_received = atoi(buffer); 
