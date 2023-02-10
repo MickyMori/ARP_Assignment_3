@@ -184,12 +184,7 @@ int main(int argc, char *argv[])
         if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
             error("ERROR on binding");
 
-        listen(sockfd,5); 
-
-        clilen = sizeof(cli_addr);
-        newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-        if (newsockfd < 0)
-            error("ERROR on accept");
+        
     }
 
     //if the program is running in client mode open the connection
@@ -288,6 +283,13 @@ int main(int argc, char *argv[])
 
         if(strcmp(run_as, "s") == 0){
 
+            listen(sockfd,5); 
+
+            clilen = sizeof(cli_addr);
+            newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+            if (newsockfd < 0)
+                error("ERROR on accept");
+
             //receive an integer value as a string corresponding to the key that has been pressed
             n = read(newsockfd,buffer,255);
             if (n < 0) error("ERROR reading from socket");
@@ -380,22 +382,13 @@ int main(int argc, char *argv[])
 
 
             }
+
+            close(newsockfd);
         
         }
         else if(strcmp(run_as, "n") == 0 || strcmp(run_as, "c") == 0){
             // Get input in non-blocking mode
             int cmd = getch();
-
-            if(strcmp(run_as, "c") == 0){
-
-                sprintf(buffer,"%d", cmd);
-
-                n = write(sockfd_c,buffer,strlen(buffer));
-                if (n < 0)
-                   error("ERROR writing to socket");
-                bzero(buffer,256);
-
-            }
 
             // If user resizes screen, re-draw UI...
             if(cmd == KEY_RESIZE) {
@@ -437,6 +430,17 @@ int main(int argc, char *argv[])
 
                         write(log_pa, "Print button pressed\n", 22);
 
+                        if(strcmp(run_as, "c") == 0){
+
+                            sprintf(buffer,"%d", cmd);
+
+                            n = write(sockfd_c,buffer,strlen(buffer));
+                            if (n < 0)
+                            error("ERROR writing to socket");
+                            bzero(buffer,256);
+
+                        }
+
                         //increment the number of snapshots
                         snap_number++;
                         //name the current snap
@@ -455,6 +459,20 @@ int main(int argc, char *argv[])
             // If input is an arrow key, move circle accordingly...
             else if(cmd == KEY_LEFT || cmd == KEY_RIGHT || cmd == KEY_UP || cmd == KEY_DOWN) {
 
+                if(strcmp(run_as, "c") == 0){
+
+                    sprintf(buffer,"%d", cmd);
+
+                    mvprintw(LINES - 1, 1, "sono qui");
+                    refresh();
+
+                    n = write(sockfd_c,buffer,strlen(buffer));
+                    if (n < 0)
+                        error("ERROR writing to socket");
+                    bzero(buffer,256);
+
+                }
+
                 // destroy previous bmp and create a blank new one
                 bmp_destroy(bmp);
                 bmp = bmp_create(width, height, depth);
@@ -471,9 +489,15 @@ int main(int argc, char *argv[])
 
                 draw_circle_bmp(position_x_bmp, position_y_bmp);
 
+                mvprintw(LINES - 1, 1, "sono ancora qui");
+                refresh();
+
                 //this semaphore is used to make sure that while process A writes on the shared memory
                 //process B doesn't try to read from it
                 sem_wait(sem_id_writer);
+
+                mvprintw(LINES - 1, 1, "sono sempre qui");
+                refresh();
 
                 write_on_shm();
 
@@ -503,7 +527,6 @@ int main(int argc, char *argv[])
     //close sockets
     if(strcmp(run_as, "s") == 0){
         close(sockfd);
-        close(newsockfd);
     }else if(strcmp(run_as, "c") == 0){
         close(sockfd_c);
     }
