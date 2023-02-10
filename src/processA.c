@@ -156,9 +156,6 @@ int main(int argc, char *argv[])
 
     }
 
-    
-
-    sem_post(sem_id_start);
 
     //define semaphores
     sem_t *sem_id_writer;
@@ -184,7 +181,12 @@ int main(int argc, char *argv[])
         if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
             error("ERROR on binding");
 
-        
+        listen(sockfd,5); 
+
+        clilen = sizeof(cli_addr);
+        newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+        if (newsockfd < 0)
+            error("ERROR on accept");
     }
 
     //if the program is running in client mode open the connection
@@ -208,8 +210,6 @@ int main(int argc, char *argv[])
 
         if (connect(sockfd_c,&serv_addr,sizeof(serv_addr)) < 0)
             error("ERROR connecting");
-
-        
 
     }
 
@@ -251,6 +251,8 @@ int main(int argc, char *argv[])
     sem_init(sem_id_writer, 1, 1);
     sem_init(sem_id_reader, 1, 0);
 
+    sem_post(sem_id_start);
+
     //create the bmp
     bmp = bmp_create(width, height, depth);
 
@@ -282,13 +284,6 @@ int main(int argc, char *argv[])
     {
 
         if(strcmp(run_as, "s") == 0){
-
-            listen(sockfd,5); 
-
-            clilen = sizeof(cli_addr);
-            newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-            if (newsockfd < 0)
-                error("ERROR on accept");
 
             //receive an integer value as a string corresponding to the key that has been pressed
             n = read(newsockfd,buffer,255);
@@ -382,8 +377,6 @@ int main(int argc, char *argv[])
 
 
             }
-
-            close(newsockfd);
         
         }
         else if(strcmp(run_as, "n") == 0 || strcmp(run_as, "c") == 0){
@@ -527,6 +520,7 @@ int main(int argc, char *argv[])
     //close sockets
     if(strcmp(run_as, "s") == 0){
         close(sockfd);
+        close(newsockfd);
     }else if(strcmp(run_as, "c") == 0){
         close(sockfd_c);
     }

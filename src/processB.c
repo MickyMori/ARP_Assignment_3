@@ -91,9 +91,6 @@ int main(int argc, char const *argv[])
     //process B tries to open it
     sleep(1);
 
-    //define semaphores
-    sem_t *sem_id_writer;
-    sem_t *sem_id_reader;
     sem_t *sem_id_start;
 
     sem_id_start = sem_open(SEM_PATH_START, 0644, 1);
@@ -103,6 +100,10 @@ int main(int argc, char const *argv[])
     }
 
     sem_wait(sem_id_start);
+
+    //define semaphores
+    sem_t *sem_id_writer;
+    sem_t *sem_id_reader;
 
     //open shared memory
     shm_fd = shm_open(shm_name, O_RDONLY, 0666);
