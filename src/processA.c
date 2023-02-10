@@ -13,6 +13,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <arpa/inet.h>
 #define SEM_PATH_WRITER "/sem_AOS_writer"
 #define SEM_PATH_READER "/sem_AOS_reader"
 #define SEM_PATH_START "/sem_AOS_start"
@@ -123,6 +124,8 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    sem_init(sem_id_start, 1, 1);
+
     sem_wait(sem_id_start);
 
     //choose how to run processA
@@ -137,22 +140,23 @@ int main(int argc, char *argv[])
  
     }
 
-    if(strcmp(run_as, "c") == 0 || strcmp(run_as, "s") == 0){
+    if(strcmp(run_as, "c") == 0){
 
         printf("Insert the address of the companion application: \n");
         fflush(stdout);
         scanf("%s", addr);
+            
+    }
 
-        printf("%s\n", addr);
-    
+    if(strcmp(run_as, "c") == 0 || strcmp(run_as, "s") == 0){
     
         printf("Insert the port number of the companion application: \n");
         fflush(stdout);
         scanf("%s", port);
 
-        printf("%s\n", port);
-
     }
+
+    
 
     sem_post(sem_id_start);
 
@@ -193,18 +197,24 @@ int main(int argc, char *argv[])
 
         portno = atoi(port);
 
+        
+
         sockfd_c = socket(AF_INET, SOCK_STREAM, 0);
         if (sockfd_c < 0)
             error("ERROR opening socket");
+
+        
 
         serv_addr.sin_family = AF_INET;
 
         serv_addr.sin_port = htons(portno);
 
-        serv_addr.sin_addr.s_addr = addr;
+        inet_aton(addr, &serv_addr.sin_addr);
 
         if (connect(sockfd_c,&serv_addr,sizeof(serv_addr)) < 0)
             error("ERROR connecting");
+
+        
 
     }
 
@@ -278,14 +288,12 @@ int main(int argc, char *argv[])
 
         if(strcmp(run_as, "s") == 0){
 
-            //receive an integer value as bytes corresponding to the key that has been pressed
-            int bytes_received = recv(newsockfd, &cmd_received, sizeof(cmd_received), 0);
-            if(bytes_received < 0){
-                perror("recv failed");
-            }
+            //receive an integer value as a string corresponding to the key that has been pressed
+            n = read(newsockfd,buffer,255);
+            if (n < 0) error("ERROR reading from socket");
 
             //convert the bytes into an integer
-            cmd_received = ntohl(cmd_received); 
+            cmd_received = atoi(cmd_received); 
 
             if(cmd_received == KEY_RESIZE) {
                 if(first_resize) {
@@ -380,10 +388,12 @@ int main(int argc, char *argv[])
 
             if(strcmp(run_as, "c") == 0){
 
-                cmd_send  = htonl(cmd);
+                sprintf(buffer,"%d", cmd);
 
-                if(send(sockfd_c, &cmd_send, sizeof(cmd_send), 0) < 0)
-                    perror("send failed");
+                n = write(sockfd_c,buffer,strlen(buffer));
+                if (n < 0)
+                   error("ERROR writing to socket");
+                bzero(buffer,256);
 
             }
 
