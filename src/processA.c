@@ -59,7 +59,7 @@ int portno;
 int cmd_received, cmd_send;
 
 int clilen, n;
-char buffer[256];
+char buffer[30];
 
 //define the host
 struct hostent *server;
@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
         if(strcmp(run_as, "s") == 0){
 
             //receive an integer value as a string corresponding to the key that has been pressed
-            n = read(newsockfd,buffer,255);
+            n = read(newsockfd,buffer,30);
                 if (n < 0) error("ERROR reading from socket");
 
             mvprintw(LINES - 1, 1, "%s", buffer);
@@ -433,7 +433,7 @@ int main(int argc, char *argv[])
                             n = write(sockfd_c,buffer,strlen(buffer));
                             if (n < 0)
                             error("ERROR writing to socket");
-                            bzero(buffer,256);
+                            bzero(buffer,30);
 
                         }
 
@@ -465,7 +465,7 @@ int main(int argc, char *argv[])
                     n = write(sockfd_c,buffer,strlen(buffer));
                     if (n < 0)
                         error("ERROR writing to socket");
-                    bzero(buffer,256);
+                    bzero(buffer,30);
 
                 }
 
