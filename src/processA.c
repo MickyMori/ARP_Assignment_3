@@ -59,7 +59,7 @@ int portno;
 int cmd_received, cmd_send;
 
 int clilen, n;
-char buffer[30];
+char buffer[5];
 
 //define the host
 struct hostent *server;
@@ -156,6 +156,15 @@ int main(int argc, char *argv[])
 
     }
 
+    if(strcmp(run_as, "n") == 0){
+        write(log_pa, "Normal mode selected\n", 22);
+    }else if(strcmp(run_as, "c") == 0){
+        write(log_pa, "Client mode selected\n", 22);
+    }else if(strcmp(run_as, "s") == 0){
+        write(log_pa, "Server mode selected\n", 22);
+    }
+
+
 
     //define semaphores
     sem_t *sem_id_writer;
@@ -166,7 +175,7 @@ int main(int argc, char *argv[])
         //open socket
         sockfd = socket(AF_INET, SOCK_STREAM, 0);
         if (sockfd < 0)
-            perror("ERROR opening socket");
+            write(log_pa, "ERROR opening socket\n", 22);
 
         bzero((char *) &serv_addr, sizeof(serv_addr));
 
@@ -179,14 +188,14 @@ int main(int argc, char *argv[])
         serv_addr.sin_addr.s_addr = INADDR_ANY;
 
         if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
-            error("ERROR on binding");
+            write(log_pa, "ERROR on binding\n", 18);
 
         listen(sockfd,5); 
 
         clilen = sizeof(cli_addr);
         newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
         if (newsockfd < 0)
-            error("ERROR on accept");
+            write(log_pa, "ERROR on accept\n", 17);
     }
 
     //if the program is running in client mode open the connection
@@ -198,7 +207,7 @@ int main(int argc, char *argv[])
 
         sockfd_c = socket(AF_INET, SOCK_STREAM, 0);
         if (sockfd_c < 0)
-            error("ERROR opening socket");
+            write(log_pa, "ERROR opening socket\n", 22);
 
         
 
@@ -209,7 +218,7 @@ int main(int argc, char *argv[])
         inet_aton(addr, &serv_addr.sin_addr);
 
         if (connect(sockfd_c,&serv_addr,sizeof(serv_addr)) < 0)
-            error("ERROR connecting");
+            write(log_pa, "ERROR connecting\n", 18);
 
     }
 
@@ -286,7 +295,7 @@ int main(int argc, char *argv[])
         if(strcmp(run_as, "s") == 0){
 
             //receive an integer value as a string corresponding to the key that has been pressed
-            n = read(newsockfd,buffer,30);
+            n = read(newsockfd,buffer,5);
                 if (n < 0) error("ERROR reading from socket");
 
 
@@ -324,27 +333,25 @@ int main(int argc, char *argv[])
             }
 
             // Else, if user presses print button...
-            else if(cmd_received == KEY_MOUSE) {
-                if(getmouse(&event) == OK) {
-                    if(check_button_pressed(print_btn, &event)) {
-                        mvprintw(LINES - 1, 1, "Print button pressed");
-                        refresh();
+            else if(cmd_received == 1111) {
 
-                        write(log_pa, "Print button pressed\n", 22);
+                mvprintw(LINES - 1, 1, "Print button pressed");
+                refresh();
 
-                        //increment the number of snapshots
-                        snap_number++;
-                        //name the current snap
-                        sprintf(snap_name, "out/snapshot%d.bmp", snap_number);
-                        // Save image as .bmp file
-                        bmp_save(bmp, snap_name);
+                write(log_pa, "Print button pressed\n", 22);
 
-                        sleep(1);
-                        for(int j = 0; j < COLS - BTN_SIZE_X - 2; j++) {
-                            mvaddch(LINES - 1, j, ' ');
-                        }
-                    }
+                //increment the number of snapshots
+                snap_number++;
+                //name the current snap
+                sprintf(snap_name, "out/snapshot%d.bmp", snap_number);
+                // Save image as .bmp file
+                bmp_save(bmp, snap_name);
+
+                sleep(1);
+                for(int j = 0; j < COLS - BTN_SIZE_X - 2; j++) {
+                    mvaddch(LINES - 1, j, ' ');
                 }
+
             }
 
             // If input is an arrow key, move circle accordingly...
@@ -379,7 +386,7 @@ int main(int argc, char *argv[])
 
             }
 
-            bzero(buffer, 30);
+            bzero(buffer, 5);
         
         }
         else if(strcmp(run_as, "n") == 0 || strcmp(run_as, "c") == 0){
@@ -428,12 +435,12 @@ int main(int argc, char *argv[])
 
                         if(strcmp(run_as, "c") == 0){
 
-                            sprintf(buffer,"%d", cmd);
+                            sprintf(buffer,"%d", 1111);
 
                             n = write(sockfd_c,buffer,strlen(buffer));
                             if (n < 0)
-                            error("ERROR writing to socket");
-                            bzero(buffer,30);
+                                write(log_pa, "ERROR writing to socket\n", 25);
+                            bzero(buffer,5);
 
                         }
 
@@ -462,7 +469,7 @@ int main(int argc, char *argv[])
                     n = write(sockfd_c,buffer,strlen(buffer));
                     if (n < 0)
                         error("ERROR writing to socket");
-                    bzero(buffer,30);
+                    bzero(buffer,5);
 
                 }
 
