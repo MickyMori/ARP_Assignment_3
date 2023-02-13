@@ -112,9 +112,12 @@ If you want to see a snapshot created by pressing the print button you have to g
 
 There are 3 processes:
 
-* <b>Process A</b>: draws a green circle in the bitmap, which center corresponds to the same location where the cursor is every time the user moves it using the keyboard buttons [See the Legend of clickable Buttons](#legend_of_buttons).
+* <b>Process A</b>: asks the user to select how to run process A. The user can decide to run the process in three modality: 
+- typing `n`, the process starts in normal mode: it draws a green circle in the bitmap, which center corresponds to the same location where the cursor is every time the user moves it using the keyboard buttons [See the Legend of clickable Buttons](#legend_of_buttons).
 This process passes all the bmp map to the Process B using the shared memory.
-One of the main problems of the use of the shared memory is that a situation arises in which are done the operations of reading and writing from memory at the same time, and so, we use combined semaphores to avoid this type of situation.     
+One of the main problems of the use of the shared memory is that a situation arises in which are done the operations of reading and writing from memory at the same time, and so, we use combined semaphores to avoid this type of situation.
+- typing `c`, the process starts in client mode: it follows the same steps as normal mode, but it also writes on a TCP connection with a server the `cmd` value associated to the key pressed. 
+- typing `s`, the process starts in server mode: it receives the `cmd` value from the TCP connection mentioned in the client mode and follows all the steps explained for the normal mode of course without listening to keyboard inputs.
 
 * <b>Process B</b>: extracts from the bmp passed by the Process A, the location of the circle drawn in it and calculate the center of it and after this process re-draw the same circle on another bitmap. This process also keeps track of the cursor that is moved by the user through the Process A.
 
