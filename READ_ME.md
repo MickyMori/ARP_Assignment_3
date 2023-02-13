@@ -35,6 +35,8 @@ There will be an additional function, useful for debugging. By pressing a
 key, or by operating the mouse on a button, a snapshot of the image memory will be saved on a
 .bmp file.<br>
 
+The main difference between this assignment and the previous one, is that in this third assignment at the beginning, the process A asks the user to select how to run process A. The three modalities are descripted below in the section ```"How it Works"```. [Go to How it works](#how_it_works).
+
 <a name="legend_of_buttons"></a>
 ### Legend of Buttons
 
