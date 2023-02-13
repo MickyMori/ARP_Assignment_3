@@ -333,7 +333,7 @@ int main(int argc, char *argv[])
             }
 
             // Else, if user presses print button...
-            else if(cmd_received == 1111) {
+            else if(cmd_received == 1) {
 
                 mvprintw(LINES - 1, 1, "Print button pressed");
                 refresh();
@@ -435,7 +435,7 @@ int main(int argc, char *argv[])
 
                         if(strcmp(run_as, "c") == 0){
 
-                            sprintf(buffer,"%d", 1111);
+                            sprintf(buffer,"%d", 1);
 
                             n = write(sockfd_c,buffer,strlen(buffer));
                             if (n < 0)
