@@ -289,8 +289,6 @@ int main(int argc, char *argv[])
             n = read(newsockfd,buffer,30);
                 if (n < 0) error("ERROR reading from socket");
 
-            mvprintw(LINES - 1, 1, "%s", buffer);
-            refresh();
 
             //convert the bytes into an integer
             cmd_received = atoi(buffer); 
@@ -380,6 +378,8 @@ int main(int argc, char *argv[])
 
 
             }
+
+            bzero(buffer, 30);
         
         }
         else if(strcmp(run_as, "n") == 0 || strcmp(run_as, "c") == 0){
@@ -459,9 +459,6 @@ int main(int argc, char *argv[])
 
                     sprintf(buffer,"%d", cmd);
 
-                    mvprintw(LINES - 1, 1, "sono qui");
-                    refresh();
-
                     n = write(sockfd_c,buffer,strlen(buffer));
                     if (n < 0)
                         error("ERROR writing to socket");
@@ -485,15 +482,9 @@ int main(int argc, char *argv[])
 
                 draw_circle_bmp(position_x_bmp, position_y_bmp);
 
-                mvprintw(LINES - 1, 1, "sono ancora qui");
-                refresh();
-
                 //this semaphore is used to make sure that while process A writes on the shared memory
                 //process B doesn't try to read from it
                 sem_wait(sem_id_writer);
-
-                mvprintw(LINES - 1, 1, "sono sempre qui");
-                refresh();
 
                 write_on_shm();
 
